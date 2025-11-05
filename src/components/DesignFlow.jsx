@@ -26,8 +26,7 @@ const items = [
 
 export default function DesignFlow() {
   return (
-    <section className="relative bg-black text-white py-24 md:py-32">
-      <div className="absolute inset-0 bg-gradient-to-b from-black via-black to-black" />
+    <section className="relative text-slate-900 py-24 md:py-32">
       <div className="relative max-w-6xl mx-auto px-6">
         <motion.h2
           initial={{ opacity: 0, y: 12 }}
@@ -46,13 +45,13 @@ export default function DesignFlow() {
               whileInView={{ opacity: 1, y: 0, scale: 1 }}
               viewport={{ once: true, amount: 0.3 }}
               transition={{ delay: i * 0.05, duration: 0.5 }}
-              className="relative rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-6 shadow-2xl shadow-black/30 hover:shadow-black/40"
+              className="relative rounded-3xl border border-slate-200 bg-white/80 backdrop-blur-xl p-6 shadow-lg hover:shadow-xl"
             >
               <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-red-500 to-orange-500 grid place-items-center text-white mb-4">
                 <it.icon className="h-6 w-6" />
               </div>
               <h3 className="text-lg font-semibold mb-2">{it.title}</h3>
-              <p className="text-white/80 text-sm leading-relaxed">{it.text}</p>
+              <p className="text-slate-700 text-sm leading-relaxed">{it.text}</p>
             </motion.div>
           ))}
         </div>

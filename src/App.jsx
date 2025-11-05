@@ -5,7 +5,7 @@ import PageFooter from './components/PageFooter';
 
 function App() {
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-gradient-to-br from-[#EDE9FE] via-[#F5F3FF] to-[#A5F3FC] text-slate-900">
       <Navbar />
       <main>
         <section id="chat">
