@@ -5,18 +5,40 @@ export default function ChatBox() {
   const [messages, setMessages] = useState([
     { role: 'assistant', content: "Tell me what you're building. I'll sketch the UX, generate the stack, and assemble your app end‑to‑end." },
   ]);
-  const [input, setInput] = useState('I want a modern SaaS landing with auth and a dashboard.');
+  const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const endRef = useRef(null);
 
   const API_BASE = useMemo(() => import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000', []);
   const sessionId = useMemo(() => {
-    const cached = sessionStorage.getItem('session_id');
-    if (cached) return cached;
-    const id = (crypto && crypto.randomUUID) ? crypto.randomUUID() : Math.random().toString(36).slice(2);
-    sessionStorage.setItem('session_id', id);
-    return id;
+    try {
+      const cached = sessionStorage.getItem('session_id');
+      if (cached) return cached;
+      const id = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : Math.random().toString(36).slice(2);
+      sessionStorage.setItem('session_id', id);
+      return id;
+    } catch {
+      return Math.random().toString(36).slice(2);
+    }
   }, []);
+
+  // Load chat history on mount
+  useEffect(() => {
+    const loadHistory = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/chat/${sessionId}`);
+        if (!res.ok) return; // keep default intro message if no history
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          const mapped = data.map((d) => ({ role: d.role, content: d.content }));
+          setMessages(mapped);
+        }
+      } catch {
+        // silently ignore history load errors
+      }
+    };
+    loadHistory();
+  }, [API_BASE, sessionId]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
