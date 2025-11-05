@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { Send, Loader2 } from 'lucide-react';
 
 export default function ChatBox() {
@@ -8,6 +8,15 @@ export default function ChatBox() {
   const [input, setInput] = useState('I want a modern SaaS landing with auth and a dashboard.');
   const [loading, setLoading] = useState(false);
   const endRef = useRef(null);
+
+  const API_BASE = useMemo(() => import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000', []);
+  const sessionId = useMemo(() => {
+    const cached = sessionStorage.getItem('session_id');
+    if (cached) return cached;
+    const id = (crypto && crypto.randomUUID) ? crypto.randomUUID() : Math.random().toString(36).slice(2);
+    sessionStorage.setItem('session_id', id);
+    return id;
+  }, []);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -19,15 +28,22 @@ export default function ChatBox() {
     if (!text) return;
     setInput('');
     setMessages((m) => [...m, { role: 'user', content: text }]);
-
-    // Simulated thinking to keep the first experience snappy without a backend yet.
     setLoading(true);
-    setTimeout(() => {
-      const reply =
-        "Love it. I'll draft a floating, glassy layout, choose a color system, and map screens: onboarding → pricing → dashboard. Ready to generate components and routes?";
-      setMessages((m) => [...m, { role: 'assistant', content: reply }]);
+
+    try {
+      const res = await fetch(`${API_BASE}/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session_id: sessionId, prompt: text })
+      });
+      if (!res.ok) throw new Error('Request failed');
+      const data = await res.json();
+      setMessages((m) => [...m, { role: 'assistant', content: data.content }]);
+    } catch (err) {
+      setMessages((m) => [...m, { role: 'assistant', content: 'There was a problem reaching the builder. Please try again.' }]);
+    } finally {
       setLoading(false);
-    }, 900);
+    }
   };
 
   return (
